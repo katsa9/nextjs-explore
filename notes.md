@@ -88,4 +88,101 @@ module.exports = {
 ## Adding Global CSS
 * In Next.js, you can add global CSS files by importing them from pages/_app.js. You cannot import global CSS anywhere else.
 
+## Pre-rendering and Data Fetching
+* By default, Next.js pre-renders every page. This means that Next.js generates HTML for each page in advance, instead of having it all done by client-side JavaScript. 
+* Pre-rendering can result in better performance and SEO.
 
+* Each generated HTML is associated with minimal JavaScript code necessary for that page. 
+* So on initisl load, pre-rendered HTML is displayed.
+* Then JS loads and React components are initialised.
+* When a page is loaded by the browser, its JavaScript code runs and makes the page fully interactive. (This process is called hydration.)
+
+* Next.js has two forms of pre-rendering: 
+    * Static Generation 
+    * Server-side Rendering. 
+* The difference is in when it generates the HTML for a page.
+
+* Static Generation is the pre-rendering method that generates the HTML at build time. The pre-rendered HTML is then reused on each request.
+* Server-side Rendering is the pre-rendering method that generates the HTML on each request.
+
+* __NOTE__
+* Importantly, Next.js lets you choose which pre-rendering form to use for each page. 
+* You can create a "hybrid" Next.js app by using Static Generation for most pages and using Server-side Rendering for others.
+
+## Pre-rendering and Data Fetching
+* Pages that do not require fetching external data will automatically be statically generated when the app is built for production.
+
+* For pages requiring data, export an async function called `getStaticProps`.
+* `getStaticProps` runs at build time in production
+* Inside the function, you can fetch external data and send it as props to the page.
+* See example:
+```
+export default function Home(props) { ... }
+
+export async function getStaticProps() {
+  // Get external data from the file system, API, DB, etc.
+  const data = ...
+
+  // The value of the `props` key will be
+  //  passed to the `Home` component
+  return {
+    props: ...
+  }
+}
+```
+
+* Essentially, `getStaticProps` allows you to tell Next.js: “Hey, this page has some data dependencies — so when you pre-render this page at build time, make sure to resolve them first!”
+
+### Parsing the Blog Data on getStaticProps
+* In this example each markdown file has a metadata section at the top containing title and date. This is called YAML Front Matter, which can be parsed using a library called gray-matter.
+* We can parse each markdown file and get title, date, and file name (which will be used as id for the post URL).
+* We need to parse the markdown files on pre-render so we implement `getStaticProps` in the `index.js` file so we can pass the data to as props.
+* Need to install `gray-matter`
+
+```
+npm install gray-matter
+```
+
+### Fetch External API or Query Database
+* In lib/posts.js, we’ve implemented getSortedPostsData which fetches data from the file system. But you can fetch the data from other sources, like an external API endpoint, and it’ll work just fine:
+* Query API:
+```
+export async function getSortedPostsData() {
+  // Instead of the file system,
+  // fetch post data from an external API endpoint
+  const res = await fetch('..')
+  return res.json()
+}
+```
+* Query DB:
+```
+import someDatabaseSDK from 'someDatabaseSDK'
+
+const databaseClient = someDatabaseSDK.createClient(...)
+
+export async function getSortedPostsData() {
+  // Instead of the file system,
+  // fetch post data from a database
+  return databaseClient.query('SELECT posts...')
+}
+```
+
+* This is possible because `getStaticProps` only runs on the server-side. It will never run on the client-side. It won’t even be included in the JS bundle for the browser. That means you can write code such as direct database queries without them being sent to browsers.
+  
+* Because it’s meant to be run at build time, you won’t be able to use data that’s only available during request time, such as query parameters or HTTP headers.
+
+### Fetching Data at Request Time
+* If you need to fetch data at request time instead of at build time, you can try Server-side Rendering.
+* On each request the data is fetched and the HTML is generated and returned.
+* To use Server-side Rendering, you need to export `getServerSideProps` instead of `getStaticProps` from your page.
+  
+* Time to first byte (TTFB) will be slower than getStaticProps because the server must compute the result on every request, and the result cannot be cached by a CDN without extra configuration.
+
+### Clientside Rendering
+* If you do not need to pre-render the data, you can also use the following strategy (called Client-side Rendering).
+  
+* Statically generate (pre-render) parts of the page that do not require external data.
+  
+* When the page loads, fetch external data from the client using JavaScript and populate the remaining parts.
+  
+*  SWR is a React hook for data fetching called SWR. We highly recommend it if you’re fetching data on the client side. It handles caching, revalidation, focus tracking, refetching on interval, and more. 
