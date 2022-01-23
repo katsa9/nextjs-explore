@@ -71,3 +71,21 @@ module.exports = {
   },
 }
 ```
+* You should add the priority property to the image that will be the Largest Contentful Paint (LCP) element for each page. Doing so allows Next.js to specially prioritize the image for loading (e.g. through preload tags or priority hints), leading to a meaningful boost in LCP.
+
+* The image component has several different layout modes that define how it is sized on the page. If the styling of your image isn't turning out the way you want, consider experimenting with other layout modes.
+
+## Assets, Metadata, and CSS
+* To add a title tag to a page, use the `<Head />` component.
+* To add external javascript files, use the `<Script />` component.
+* Next.js has built in support for a library called __styled-jsx__. It’s a “CSS-in-JS” library — it lets you write CSS within a React component, and the CSS styles will be scoped (other components won’t be affected). See `index.js` for example.
+* Next.js has built-in support for CSS and Sass which allows you to import .css and .scss files and also use css modules.
+* CSS Modules are useful for component-level styles. But if you want some CSS to be loaded by every page, Next.js has support for that as well.
+
+* To load global CSS files, create a file called `pages/_app.js`
+* This `App` component is the top-level component which will be common across all the different pages. You can use this App component to keep state when navigating between pages. 
+
+## Adding Global CSS
+* In Next.js, you can add global CSS files by importing them from pages/_app.js. You cannot import global CSS anywhere else.
+
+
