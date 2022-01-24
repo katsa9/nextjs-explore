@@ -186,3 +186,41 @@ export async function getSortedPostsData() {
 * When the page loads, fetch external data from the client using JavaScript and populate the remaining parts.
   
 *  SWR is a React hook for data fetching called SWR. We highly recommend it if you’re fetching data on the client side. It handles caching, revalidation, focus tracking, refetching on interval, and more. 
+
+## Page Path Depends on External Data
+* When each page path depends on external data, Next.js allows you to statically generate pages with paths that depend on external data. 
+* This enables dynamic URLs such as `/posts/[id]
+
+* So to statically generate a pageat a path `/posts/<id>` where id is dynamic, then create a page at `/pages/posts/[id].js
+
+* This page file must contain:
+    * A React component to render the pge
+    * `getStaticPaths()` which returns an array of possible values for `id`
+    * `getStaticProps()` which fetches necessary data for post with `id`
+
+
+## Dynamic Routes
+* See https://nextjs.org/docs/routing/dynamic-routes
+* In Next.js you can add brackets to a page ([param]) to create a dynamic route (a.k.a. url slugs, pretty urls, and others).
+
+## API Routes
+* API routes provide a solution to build your API with Next.js.
+* Any file inside the folder `pages/api` is mapped to `/api/*` and will be treated as an API endpoint instead of a page. They are server-side only bundles and won't increase your client-side bundle size.
+
+* For example, the following API route pages/api/user.js returns a json response with a status code of 200:
+
+```
+export default function handler(req, res) {
+  res.status(200).json({ name: 'John Doe' })
+}
+```
+* To handle different HTTP methods in an API route, you can use req.method in your request handler, like so:
+```
+export default function handler(req, res) {
+  if (req.method === 'POST') {
+    // Process a POST request
+  } else {
+    // Handle any other HTTP method
+  }
+}
+```

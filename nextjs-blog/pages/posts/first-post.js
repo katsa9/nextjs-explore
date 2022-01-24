@@ -3,6 +3,9 @@ import Head from 'next/head'
 import Script from 'next/script'
 import Layout from '../../components/layout'
 
+/**
+This file is no longer used
+ */
 export default function FirstPost() {
   return (
     <Layout>
