@@ -224,3 +224,75 @@ export default function handler(req, res) {
   }
 }
 ```
+
+## Dynamic Routes
+* You can fetch from external API or query a database
+  
+* Like `getStaticProps`, `getStaticPaths` can fetch data from any data source. In our example, `getAllPostIds` (which is used by getStaticPaths) may fetch from an external API endpoint:
+
+```
+export async function getAllPostIds() {
+  // Instead of the file system,
+  // fetch post data from an external API endpoint
+  const res = await fetch('..')
+  const posts = await res.json()
+  return posts.map(post => {
+    return {
+      params: {
+        id: post.id
+      }
+    }
+  })
+}
+```
+
+* In development (npm run dev or yarn dev), getStaticPaths runs on every request.
+  
+* In production, getStaticPaths runs at build time.
+* If fallback is `false`, then any paths not returned by getStaticPaths will result in a 404 page.
+
+* If fallback is `true`, then the behavior of getStaticProps changes. See more details here: https://nextjs.org/docs/api-reference/data-fetching/get-static-paths#fallback-false
+
+### 404 Pages
+* To create a custom 404 page, create pages/404.js. This file is *statically generated at build time.
+
+## Creating API Routes
+* Next.js has support for API Routes, which let you easily create an API endpoint as a Node.js serverless function. 
+
+* API Routes let you create an API endpoint inside a Next.js app. You can do so by creating a function inside the `pages/api` directory that has the following format:
+```
+// req = HTTP incoming message, res = HTTP server response
+export default function handler(req, res) {
+  // ...
+}
+```
+* They can be deployed as Serverless Functions (also known as Lambdas).
+
+* `req` is an instance of http.IncomingMessage, plus some pre-built middlewares.
+* `res` is an instance of http.ServerResponse, plus some helper functions.
+* Do Not Fetch an API Route from `getStaticProps` or `getStaticPaths`
+* You should not fetch an API Route from getStaticProps or getStaticPaths. Instead, write your server-side code directly in getStaticProps or getStaticPaths (or call a helper function).
+
+* Here’s why: getStaticProps and getStaticPaths runs only on the server-side. It will never be run on the client-side. It won’t even be included in the JS bundle for the browser. That means you can write code such as direct database queries without them being sent to browsers.
+
+* API routes are a good option for handling form input
+* For example, you can create a form on your page and have it send a POST request to your API Route. You can then write code to directly save it to your database. 
+* The API Route code will not be part of your client bundle, so you can safely write server-side code.
+* eg:
+
+```
+export default function handler(req, res) {
+  const email = req.body.email
+  // Then save email to your database, etc...
+}
+```
+
+## Push repo to github
+```
+git remote add origin https://github.com/<username>/nextjs-blog.git
+git push -u origin main
+```
+
+## Going to production
+* useful checklist for the app
+* https://nextjs.org/docs/going-to-production
